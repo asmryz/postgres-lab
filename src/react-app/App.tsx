@@ -1,66 +1,98 @@
 // src/App.tsx
 
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import cloudflareLogo from "./assets/Cloudflare_Logo.svg";
-import honoLogo from "./assets/hono.svg";
+import { Fragment, useState } from "react";
 import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [name, setName] = useState("unknown");
+	const [query, setQuery] = useState("SELECT * FROM faculty");
+	const [result, setResult] = useState([]);
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-        <a href="https://hono.dev/" target="_blank">
-          <img src={honoLogo} className="logo cloudflare" alt="Hono logo" />
-        </a>
-        <a href="https://workers.cloudflare.com/" target="_blank">
-          <img
-            src={cloudflareLogo}
-            className="logo cloudflare"
-            alt="Cloudflare logo"
-          />
-        </a>
-      </div>
-      <h1>Vite + React + Hono + Cloudflare</h1>
-      <div className="card">
-        <button
-          onClick={() => setCount((count) => count + 1)}
-          aria-label="increment"
-        >
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <div className="card">
-        <button
-          onClick={() => {
-            fetch("/api/")
-              .then((res) => res.json() as Promise<{ name: string }>)
-              .then((data) => setName(data.name));
-          }}
-          aria-label="get name"
-        >
-          Name from API is: {name}
-        </button>
-        <p>
-          Edit <code>worker/index.ts</code> to change the name
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the logos to learn more</p>
-    </>
-  );
+	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		const value = e.target.value;
+		setQuery(value);
+		console.log("Query changed:", value);
+		// You can add logic to handle the query change here
+	};
+
+	const handleDoubleClick = async () => {
+		console.log("Double clicked on the textarea");
+		let response = await fetch(`/execute/${encodeURIComponent(query)}`).then((res) => res.json());
+		console.log(response);
+		setResult(response);
+		// You can add logic to handle double click here
+	};
+
+	return (
+		<>
+			<div style={{ position: "fixed", top: 0, left: 0, width: "100%", zIndex: 1000, textAlign: "left", background: "#fff" }}>
+				<a
+					href="#"
+					onClick={handleDoubleClick}
+					style={{
+						display: "inline-block",
+						marginBottom: "0.25rem",
+                        verticalAlign: "top",
+                        marginRight: "0.5rem",
+                        marginTop: "1rem"
+					}}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						xmlnsXlink="http://www.w3.org/1999/xlink"
+						fill="#7d7d7d"
+						height="30px"
+						width="30px"
+						version="1.1"
+						id="Capa_1"
+						viewBox="0 0 52.00 52.00"
+						xmlSpace="preserve"
+						stroke="#7d7d7d"
+					>
+						<g id="SVGRepo_iconCarrier">
+							<g>
+								<path d="M45.563,29.174l-22-15c-0.307-0.208-0.703-0.231-1.031-0.058C22.205,14.289,22,14.629,22,15v30 c0,0.371,0.205,0.711,0.533,0.884C22.679,45.962,22.84,46,23,46c0.197,0,0.394-0.059,0.563-0.174l22-15 C45.836,30.64,46,30.331,46,30S45.836,29.36,45.563,29.174z M24,43.107V16.893L43.225,30L24,43.107z" />{" "}
+							</g>
+						</g>
+					</svg>
+				</a>
+
+				<textarea
+					name="query"
+					rows={4}
+					value={query}
+					onChange={handleChange}
+					onDoubleClick={handleDoubleClick}
+					style={{
+						top: 0,
+						left: 0,
+						width: "50%",
+						zIndex: 1001,
+						boxSizing: "border-box",
+						// fontSize: "1.1rem",
+						padding: "0.5rem",
+					}}
+				/>
+			</div>
+			<div style={{ marginTop: "60px", height: "calc(100vh - 80px)", overflowY: "auto", width: "4000px" }}>
+				<table>
+					{result.map((item: any, index: number) => (
+						<Fragment key={index}>
+							<thead>
+								<tr>{index === 0 && Object.keys(item).map((key, idx) => <th key={idx}>{key}</th>)}</tr>
+							</thead>
+							<tbody>
+								<tr>
+									{Object.entries(item).map(([key], idx) => (
+										<td key={idx}>{typeof item[key] === "object" ? item[key] : item[key].toString()}</td>
+									))}
+								</tr>
+							</tbody>
+						</Fragment>
+					))}
+				</table>
+			</div>
+		</>
+	);
 }
 
 export default App;

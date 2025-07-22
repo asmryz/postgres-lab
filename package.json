@@ -15,6 +15,7 @@
     "publish": true
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
     "hono": "4.8.2",
     "react": "19.0.0",
     "react-dom": "19.0.0"
@@ -40,7 +41,7 @@
     "cf-typegen": "wrangler types",
     "check": "tsc && vite build && wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
-    "dev": "vite",
+    "dev": "vite --host",
     "lint": "eslint .",
     "preview": "npm run build && vite preview"
   },
