@@ -19,7 +19,7 @@ body {
 
 table, th, th, tr, td {
     border: 1px dashed #515151;
-    font-family: Consolas;
+    font-family: Courier, monospace;
     font-size: 14px;
     border-collapse: collapse;
     padding: 0px 10px;

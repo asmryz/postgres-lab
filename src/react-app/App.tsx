@@ -1,16 +1,37 @@
 // src/App.tsx
 
-import { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import "./App.css";
 
-function App() {
-	const [query, setQuery] = useState("SELECT * FROM faculty");
-	const [result, setResult] = useState([]);
+function useStickyState(defaultValue: string, key: string) {
+  const [value, setValue] = React.useState(() => {
+    const stickyValue = window.localStorage.getItem(key)
+    return stickyValue !== null ? JSON.parse(stickyValue) : defaultValue
+  })
+  React.useEffect(() => {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  }, [key, value])
+  return [value, setValue]
+}
 
-	const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		const value = e.target.value;
-		setQuery(value);
-		console.log("Query changed:", value);
+
+function App() {
+	const [query, setQuery] = useState("SELECT * FROM jobs");
+	const [result, setResult] = useState([]);
+	const [schema, setSchema] = useStickyState('public', 'schema')
+ 
+	useEffect(() => {
+		fetch(`/execute/SET SCHEMA '${schema}';`).then((res) => res.json());
+	}, [schema]);
+
+	const handleChange = async (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => {
+		const { name, value } = e.target;
+		if(name === "query") { setQuery(value) }
+		if(name === "schema") { 
+			setSchema(value) 
+		} 
+		//setQuery(value);
+		console.log(`name : ${name},  value : ${value}`);
 		// You can add logic to handle the query change here
 	};
 
@@ -24,16 +45,24 @@ function App() {
 
 	return (
 		<>
-			<div style={{ position: "fixed", top: 0, left: 0, width: "100%", zIndex: 1000, textAlign: "left", background: "#fff" }}>
+			<div style={{ position: "fixed", top: 0, left: 0, width: "100%", zIndex: 1000, textAlign: "left", background: "#fff" }}> 
+				Schema :
+				<select name="schema" value={schema} onChange={handleChange}>
+					<option value="public">public</option>
+					<option value="hr">hr</option>
+					<option value="uni">uni</option>
+				</select>
+			</div>
+			<div style={{  position: "fixed", top: 30, left: 0,  width: "100%", zIndex: 1000, textAlign: "left", background: "#fff" }}>
 				<a
 					href="#"
 					onClick={handleDoubleClick}
 					style={{
 						display: "inline-block",
 						marginBottom: "0.25rem",
-                        verticalAlign: "top",
-                        marginRight: "0.5rem",
-                        marginTop: "1rem"
+						verticalAlign: "top",
+						marginRight: "0.5rem",
+						marginTop: "1rem"
 					}}
 				>
 					<svg
@@ -73,7 +102,8 @@ function App() {
 					}}
 				/>
 			</div>
-			<div style={{ marginTop: "60px", height: "calc(100vh - 80px)", overflowY: "auto", width: "4000px" }}>
+
+			<div style={{ marginTop: "90px", height: "calc(100vh - 80px)", overflowY: "auto", width: "4000px" }}>
 				<table>
 					{result.map((item: any, index: number) => (
 						<Fragment key={index}>
