@@ -18,7 +18,7 @@ body {
 }
 
 table, th, th, tr, td {
-    border: 1px dashed #515151;
+    border: 1px solid #515151;
     font-family: Courier, monospace;
     font-size: 14px;
     border-collapse: collapse;
